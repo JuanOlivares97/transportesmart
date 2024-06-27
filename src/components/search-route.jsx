@@ -1,20 +1,9 @@
-'use client'
-import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
 import Image from "next/image";
 import Link from "next/link";
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-// Configuración de íconos personalizados para los marcadores de paradas
-const customIcon = L.icon({
-  iconUrl: '/puntero-de-parada-de-autobus.png', // Cambia la ruta del icono según corresponda
-  iconSize: [35, 41],
-  iconAnchor: [24, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
 
 // Dynamic import for MapContainer, TileLayer, Polyline, Marker, and Tooltip to ensure they are only loaded on the client
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -22,26 +11,37 @@ const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLaye
 const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Tooltip = dynamic(() => import('react-leaflet').then(mod => mod.Tooltip), { ssr: false });
+const customIcon = dynamic(() =>
+  import('leaflet').then(L => new L.Icon({
+    iconUrl: '/puntero-de-parada-de-autobus.png', // Cambia la ruta del icono según corresponda
+    iconSize: [35, 41],
+    iconAnchor: [24, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  })), { ssr: false }
+);
 
 export default function SearchRoute() {
   const [route, setRoute] = useState([]);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [stops, setStops] = useState([]);
-  const mapRef = useRef(null);
+  const mapRef = useRef();
 
   useEffect(() => {
-    // Fetch the list of routes
-    fetch('https://us-central1-transportes-red.cloudfunctions.net/app/get-recorridos/all')
-      .then((response) => response.json())
-      .then((data) => {
-        setRoutes(data);
-      })
-      .catch((error) => console.error('Error fetching routes:', error));
+    if (typeof window !== 'undefined') {
+      // Fetch the list of routes
+      fetch('https://us-central1-transportes-red.cloudfunctions.net/app/get-recorridos/all')
+        .then((response) => response.json())
+        .then((data) => {
+          setRoutes(data);
+        })
+        .catch((error) => console.error('Error fetching routes:', error));
+    }
   }, []);
 
   useEffect(() => {
-    if (selectedRoute) {
+    if (selectedRoute && typeof window !== 'undefined') {
       // Fetch the route path
       fetch(`https://us-central1-transportes-red.cloudfunctions.net/app/recorridos/${selectedRoute}`)
         .then((response) => {
@@ -55,7 +55,8 @@ export default function SearchRoute() {
           setRoute(path);
 
           if (mapRef.current) {
-            mapRef.current.fitBounds(path);
+            const map = mapRef.current;
+            map.fitBounds(path);
           }
         })
         .catch((error) => console.error('Error fetching route:', error));
@@ -102,7 +103,7 @@ export default function SearchRoute() {
       <main className="flex-1">
         <div className="h-full">
           {typeof window !== 'undefined' && (
-            <MapContainer center={[-33.4567, -70.6789]} zoom={13} style={{ height: "100%", width: "100%", zIndex: "-1" }} whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}>
+            <MapContainer center={[-33.4567, -70.6789]} zoom={13} style={{ height: "100%", width: "100%", zIndex:"-1" }} whenCreated={mapInstance => { mapRef.current = mapInstance; }}>
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
