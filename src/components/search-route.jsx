@@ -1,10 +1,10 @@
+import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Tooltip } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
 import Image from "next/image";
 import Link from "next/link";
 import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 // Configuración de íconos personalizados para los marcadores de paradas
 const customIcon = new L.Icon({
@@ -14,6 +14,13 @@ const customIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
+
+// Dynamic import for MapContainer, TileLayer, Polyline, and Marker to ensure they are only loaded on the client
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
+const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
+const Tooltip = dynamic(() => import('react-leaflet').then(mod => mod.Tooltip), { ssr: false });
 
 export default function SearchRoute() {
   const [route, setRoute] = useState([]);
@@ -45,6 +52,11 @@ export default function SearchRoute() {
         .then((data) => {
           const path = data.map((point) => [point.latitud, point.longitud]);
           setRoute(path);
+
+          if (mapRef.current) {
+            const map = mapRef.current;
+            map.fitBounds(path);
+          }
         })
         .catch((error) => console.error('Error fetching route:', error));
 
