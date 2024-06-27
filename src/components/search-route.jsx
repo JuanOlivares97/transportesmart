@@ -1,3 +1,4 @@
+'use client'
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
