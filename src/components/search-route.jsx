@@ -28,7 +28,7 @@ export default function SearchRoute() {
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [stops, setStops] = useState([]);
-  const mapRef = useRef();
+  const mapRef = useRef(null);
 
   useEffect(() => {
     // Fetch the list of routes
@@ -55,8 +55,7 @@ export default function SearchRoute() {
           setRoute(path);
 
           if (mapRef.current) {
-            const map = mapRef.current;
-            map.fitBounds(path);
+            mapRef.current.fitBounds(path);
           }
         })
         .catch((error) => console.error('Error fetching route:', error));
@@ -102,25 +101,27 @@ export default function SearchRoute() {
       </header>
       <main className="flex-1">
         <div className="h-full">
-          <MapContainer center={[-33.4567, -70.6789]} zoom={13} style={{ height: "100%", width: "100%", zIndex:"-1" }} whenCreated={mapInstance => { mapRef.current = mapInstance; }}>
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {route.length > 0 && (
-              <Polyline positions={route} color="blue" />
-            )}
-            {stops.map((stop) => (
-              <Marker key={stop.stop_code} position={[stop.stop_lat, stop.stop_lon]} icon={customIcon}>
-                <Tooltip>
-                  <div>
-                    <strong>Codigo Parada:</strong> {stop.stop_code} <br />
-                    <strong>Nombre:</strong> {stop.stop_name}
-                  </div>
-                </Tooltip>
-              </Marker>
-            ))}
-          </MapContainer>
+          {typeof window !== 'undefined' && (
+            <MapContainer center={[-33.4567, -70.6789]} zoom={13} style={{ height: "100%", width: "100%", zIndex: "-1" }} whenCreated={(mapInstance) => { mapRef.current = mapInstance; }}>
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              {route.length > 0 && (
+                <Polyline positions={route} color="blue" />
+              )}
+              {stops.map((stop) => (
+                <Marker key={stop.stop_code} position={[stop.stop_lat, stop.stop_lon]} icon={customIcon}>
+                  <Tooltip>
+                    <div>
+                      <strong>Codigo Parada:</strong> {stop.stop_code} <br />
+                      <strong>Nombre:</strong> {stop.stop_name}
+                    </div>
+                  </Tooltip>
+                </Marker>
+              ))}
+            </MapContainer>
+          )}
         </div>
       </main>
     </div>
