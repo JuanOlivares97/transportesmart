@@ -1,20 +1,20 @@
-'use client'
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
 import Image from "next/image";
 import Link from "next/link";
-import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Configuración de íconos personalizados para los marcadores de paradas
-const customIcon = new L.Icon({
-  iconUrl: '/puntero-de-parada-de-autobus.png', // Cambia la ruta del icono según corresponda
-  iconSize: [35, 41],
-  iconAnchor: [24, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
+const customIcon = dynamic(() => 
+  import('leaflet').then(L => new L.Icon({
+    iconUrl: '/puntero-de-parada-de-autobus.png', // Cambia la ruta del icono según corresponda
+    iconSize: [35, 41],
+    iconAnchor: [24, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  })), { ssr: false }
+);
 
 // Dynamic import for MapContainer, TileLayer, Polyline, and Marker to ensure they are only loaded on the client
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
