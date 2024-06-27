@@ -113,7 +113,7 @@ export default function SearchRoute() {
       <main className="flex-1">
         <div className="h-full">
           {isClient && (
-            <MapContainer center={[-33.4567, -70.6789]} zoom={13} style={{ height: "100%", width: "100%", zIndex:"-1" }} whenCreated={mapInstance => { mapRef.current = mapInstance; }}>
+            <MapContainer center={[-33.4567, -70.6789]} zoom={13} style={{ height: "100%", width: "100%", zIndex:"1" }} whenCreated={mapInstance => { mapRef.current = mapInstance; }}>
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
