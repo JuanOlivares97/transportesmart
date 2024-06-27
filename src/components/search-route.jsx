@@ -4,19 +4,18 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectI
 import Image from "next/image";
 import Link from "next/link";
 import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 // Configuración de íconos personalizados para los marcadores de paradas
-const customIcon = dynamic(() => 
-  import('leaflet').then(L => new L.Icon({
-    iconUrl: '/puntero-de-parada-de-autobus.png', // Cambia la ruta del icono según corresponda
-    iconSize: [35, 41],
-    iconAnchor: [24, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-  })), { ssr: false }
-);
+const customIcon = L.icon({
+  iconUrl: '/puntero-de-parada-de-autobus.png', // Cambia la ruta del icono según corresponda
+  iconSize: [35, 41],
+  iconAnchor: [24, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
-// Dynamic import for MapContainer, TileLayer, Polyline, and Marker to ensure they are only loaded on the client
+// Dynamic import for MapContainer, TileLayer, Polyline, Marker, and Tooltip to ensure they are only loaded on the client
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
